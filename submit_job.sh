@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=Dueling_DDQN
+#SBATCH --job-name=DuelDDQN
 #SBATCH --account=AICDI
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
