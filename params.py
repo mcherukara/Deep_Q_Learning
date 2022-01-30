@@ -19,7 +19,7 @@ exploration_rate_min = 0.01
 learn_every = 4 #How many env steps to train
 
 #Misc
-seed = 2 #Random seed for reproduce
+seed = 3 #Random seed for reproduce
 
 #MD specific
 #Nvacs = 40 #How many vacancies in a step
