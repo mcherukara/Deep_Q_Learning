@@ -8,5 +8,5 @@
 source ~/.bashrc
 conda activate SB3
 
-python -u train_agent.py > Dueling_Double_DQN/log.txt
+python -u train_agent.py > Double_DQN/log.txt
 

@@ -1,15 +1,16 @@
 from imports import *
 import params
-import os
+import os,sys
 #os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 from torchsummary import summary
-if params.model_type = "Duel_Double_DQN":
+if params.model_type == "Duel_Double_DQN":
     from DDQNSolver import DDQNSolver
-elif params.model_type = "Double_DQN":
+elif params.model_type == "Double_DQN":
     from DQNSolver import DDQNSolver
 else:
-    print ("ERROR!: Choose right model in params file")
+    print ("ERROR!: Choose right model in params file", file=sys.stderr)
+
 
 class SkipFrame(gym.Wrapper):
     def __init__(self, env, skip):
@@ -127,8 +128,14 @@ class DDQNAgent:
         
         if self.current_step%self.sync_period == 0: #Copy network pieces if time
             self.net.target_conv.load_state_dict(self.net.conv.state_dict())
-            self.net.target_linear_adv.load_state_dict(self.net.linear_adv.state_dict())
-            self.net.target_linear_val.load_state_dict(self.net.linear_val.state_dict())
+
+            if params.model_type == "Duel_Double_DQN":
+                self.net.target_linear_adv.load_state_dict(self.net.linear_adv.state_dict())
+                self.net.target_linear_val.load_state_dict(self.net.linear_val.state_dict())
+
+            elif params.model_type == "Double_DQN":
+                self.net.target_linear.load_state_dict(self.net.linear.state_dict())
+                
             
         if len(self.memory)<self.burn_in: #Don't train till have collected enough data
             if(self.current_step%100==0): 

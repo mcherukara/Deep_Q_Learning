@@ -1,4 +1,4 @@
-#Dueling Deep Conv Net that outputs both value and advantage
+#Dueling Deep Conv Net that outputs both value V(s) and advantage
 from imports import *
 
 
@@ -6,7 +6,6 @@ class DDQNSolver(nn.Module):
     def __init__(self, output_dim, input_dim):
         super().__init__()
         self.input_dim = input_dim
-        
         
         #Common conv layers
         self.conv = nn.Sequential(
