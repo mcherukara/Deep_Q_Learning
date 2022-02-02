@@ -1,3 +1,4 @@
+#Dueling Deep Conv Net that outputs both value and advantage
 from imports import *
 
 

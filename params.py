@@ -10,7 +10,7 @@ else:
 
 #Log rewards and network weights
 rewards_file = 'rewards2.txt'
-save_directory = "Dueling_Double_DQN/v2"
+save_directory = "Double_DQN/v2"
 save_memory = False #Save memory on checkpoint yes/no
 
 #DQNAgent params
@@ -20,6 +20,9 @@ learn_every = 4 #How many env steps to train
 
 #Misc
 seed = 3 #Random seed for reproduce
+
+#Which model
+model_type = "Double_DQN" #Duel_Double_DQN or Double_DQN
 
 #MD specific
 #Nvacs = 40 #How many vacancies in a step

@@ -3,6 +3,14 @@ import params
 import os
 #os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
+from torchsummary import summary
+if params.model_type = "Duel_Double_DQN":
+    from DDQNSolver import DDQNSolver
+elif params.model_type = "Double_DQN":
+    from DQNSolver import DDQNSolver
+else:
+    print ("ERROR!: Choose right model in params file")
+
 class SkipFrame(gym.Wrapper):
     def __init__(self, env, skip):
         super().__init__(env)
@@ -181,8 +189,6 @@ class DDQNAgent:
 
 
 #Summary of model    
-from torchsummary import summary
-from DDQNSolver import DDQNSolver
 model = DDQNSolver(env.action_space.n, env.observation_space.shape)
 print(summary(model,(4,84,84),device="cpu"))
 
