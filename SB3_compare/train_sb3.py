@@ -1,8 +1,9 @@
+from math import gamma
 from imports import *
 import params
+import os
 
-from stable_baselines.deepq.policies import CnnPolicy
-from stable_baselines import DQN
+from stable_baselines3 import DQN
 
 class SkipFrame(gym.Wrapper):
     def __init__(self, env, skip):
@@ -57,8 +58,35 @@ torch.random.manual_seed(params.seed)
 random.seed(params.seed)
 np.random.seed(params.seed)
 
-model = DQN(CnnPolicy, env, 
+
+models_dir = "models"
+logdir = "logs"
+
+if not os.path.exists(models_dir):
+    os.makedirs(models_dir)
+
+if not os.path.exists(logdir):
+    os.makedirs(logdir)
+
+
+
+model = DQN("CnnPolicy", env, 
             learning_rate = params.learning_rate,
             buffer_size = params.memory_size,
+            learning_starts = params.batch_size*10,
+            gamma = params.gamma,
+            train_freq = params.learn_every,
+            target_update_interval = 2500*params.learn_every,
+            exploration_initial_eps = params.exploration_rate_start,
+            exploration_final_eps = params.exploration_rate_min,
+            verbose = 1,
+            exploration_fraction = 1, #How much of training run to decay exploration over
+            #This actually works if need > 1 because of how we are breaking up the run
+            tensorboard_log = 'sb3_tensorboard')
 
-            verbose=1)
+sub_timesteps = 850000
+for i in range(1,11): #10000 episodes worked out to ~8.5 mill steps
+    model.learn(total_timesteps = sub_timesteps, reset_num_timesteps = False,
+                log_interval=10, tb_log_name='DQN')
+    
+    model.save(f"{models_dir}/{sub_timesteps*i}")
