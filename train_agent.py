@@ -82,15 +82,15 @@ class DDQNAgent:
         self.action_dim = action_dim
         self.save_directory = save_directory
         self.net = DDQNSolver(self.action_dim, obs_dim).cuda()
-        self.exploration_rate = 1.0
+        self.exploration_rate = params.exploration_rate_start
         self.exploration_rate_decay = params.exploration_rate_decay
         self.exploration_rate_min = params.exploration_rate_min
         self.current_step = 0
-        self.memory = deque(maxlen=100000) #Not sure why, this version does not keep memory on GPU
+        self.memory = deque(maxlen=params.memory_size) #Not sure why, this version does not keep memory on GPU
         #But 20 GB gets filled with 100k frames
-        self.batch_size = 32
-        self.gamma = 0.95 #Reward decay
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=1e-4)
+        self.batch_size = params.batch_size
+        self.gamma = params.gamma #Reward decay
+        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=params.learning_rate)
         self.loss = torch.nn.SmoothL1Loss()
         self.episode_rewards = []
         self.moving_average_episode_rewards = []
