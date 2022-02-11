@@ -40,6 +40,7 @@ class ResizeObservation(gym.ObservationWrapper):
 
     def observation(self, observation):
         transformations = transforms.Compose([transforms.Resize(self.shape), transforms.Normalize(0, 255)])
+        #output = (input - mean)/std , so (input-0)/255
         return transformations(observation).squeeze(0)
 
 
@@ -60,17 +61,26 @@ np.random.seed(params.seed)
 
 
 models_dir = "models"
-logdir = "logs"
+logdir = "sb3_tensorboard"
 
 if not os.path.exists(models_dir):
     os.makedirs(models_dir)
+else:
+    for file in os.listdir(models_dir):
+        os.remove(os.path.join(models_dir, file))
 
 if not os.path.exists(logdir):
     os.makedirs(logdir)
 
+from stable_baselines3.dqn import CnnPolicy
 
+#Not confirmed, but this should turn off the default normalization in the CNN policy (we are already doing)
+class CustomCnnPolicy(CnnPolicy):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.normalize_images = False
 
-model = DQN("CnnPolicy", env, 
+model = DQN(CustomCnnPolicy, env, 
             learning_rate = params.learning_rate,
             buffer_size = params.memory_size,
             learning_starts = params.batch_size*10,
@@ -79,13 +89,15 @@ model = DQN("CnnPolicy", env,
             target_update_interval = 2500*params.learn_every,
             exploration_initial_eps = params.exploration_rate_start,
             exploration_final_eps = params.exploration_rate_min,
+            # Note SB3 does a linear decay, our code does an exponential decay
             verbose = 1,
-            exploration_fraction = 1, #How much of training run to decay exploration over
+            exploration_fraction = 0.5, #How much of training run to decay exploration over
             #This actually works if need > 1 because of how we are breaking up the run
-            tensorboard_log = 'sb3_tensorboard')
+            tensorboard_log = logdir)
 
-sub_timesteps = 850000
-for i in range(1,11): #10000 episodes worked out to ~8.5 mill steps
+
+sub_timesteps = 850000*2
+for i in range(1,6): #10000 episodes worked out to ~8.5 mill steps
     model.learn(total_timesteps = sub_timesteps, reset_num_timesteps = False,
                 log_interval=10, tb_log_name='DQN')
     
