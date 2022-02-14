@@ -1,10 +1,19 @@
+#DOESN'T WORK even though passes env checker
+
 from math import gamma
 from imports import *
 import params
 import os
 
-from stable_baselines3 import DQN
+from stable_baselines3 import PPO
+#from stable_baselines3.ppo import CnnPolicy
+from stable_baselines3.common.policies import ActorCriticCnnPolicy
+from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3.common.vec_env import VecFrameStack, DummyVecEnv, SubprocVecEnv
+from stable_baselines3.common.utils import set_random_seed
 
+
+#Preprocess, skip frames, grayscale, resize etc
 class SkipFrame(gym.Wrapper):
     def __init__(self, env, skip):
         super().__init__(env)
@@ -44,14 +53,52 @@ class ResizeObservation(gym.ObservationWrapper):
         return transformations(observation).squeeze(0).numpy()
 
 
+from stable_baselines3.common.env_checker import check_env
 env = gym.make('BreakoutNoFrameskip-v4')
 
 # Apply Wrappers to environment
 env = SkipFrame(env, skip=4)
 env = GrayScaleObservation(env)
 env = ResizeObservation(env, shape=84)
-env = FrameStack(env, num_stack=4)
+#env = FrameStack(env, num_stack=4)
+check_env(env)
 
+def env_layers(env_id):
+    env = gym.make(env_id)
+
+    # Apply Wrappers to environment
+    env = SkipFrame(env, skip=4)
+    env = GrayScaleObservation(env)
+    env = ResizeObservation(env, shape=84)
+#    env = FrameStack(env, num_stack=4)
+    return env
+
+from typing import Callable
+def make_env(env_id: str, rank: int, seed: int = 0) -> Callable:
+    """
+    Utility function for multiprocessed env.
+    
+    :param env_id: (str) the environment ID
+    :param num_env: (int) the number of environment you wish to have in subprocesses
+    :param seed: (int) the inital seed for RNG
+    :param rank: (int) index of the subprocess
+    :return: (Callable)
+    """
+    def _init() -> gym.Env:
+        env = env_layers(env_id)
+        env.seed(seed + rank)
+        return env
+    set_random_seed(seed)
+    return _init
+
+env_id = 'BreakoutNoFrameskip-v4'
+num_cpu = 4  # Number of processes to use
+# Create the vectorized environment
+env = DummyVecEnv([make_env(env_id, i) for i in range(num_cpu)])
+
+env = VecFrameStack(env, n_stack=4)
+
+#Set seeds
 env.seed(params.seed)
 env.action_space.seed(params.seed)
 torch.manual_seed(params.seed)
@@ -60,6 +107,8 @@ random.seed(params.seed)
 np.random.seed(params.seed)
 
 
+
+#Create logging folders if required
 models_dir = "models"
 logdir = "sb3_tensorboard"
 
@@ -72,33 +121,26 @@ else:
 if not os.path.exists(logdir):
     os.makedirs(logdir)
 
-from stable_baselines3.dqn import CnnPolicy
+
 
 #Not confirmed, but this should turn off the default normalization in the CNN policy (we are already doing)
-class CustomCnnPolicy(CnnPolicy):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class CustomCnnPolicy(ActorCriticCnnPolicy):
+    def __init__(self):
+        super().__init__(self)
         self.normalize_images = False
 
-model = DQN(CustomCnnPolicy, env, 
+
+model = PPO(CustomCnnPolicy, env, 
             learning_rate = params.learning_rate,
-            buffer_size = params.memory_size,
-            learning_starts = params.batch_size*10,
+            batch_size = params.batch_size,
             gamma = params.gamma,
-            train_freq = params.learn_every,
-            target_update_interval = 2500*params.learn_every,
-            exploration_initial_eps = params.exploration_rate_start,
-            exploration_final_eps = params.exploration_rate_min,
-            # Note SB3 does a linear decay, our code does an exponential decay
             verbose = 1,
-            exploration_fraction = 0.5, #How much of training run to decay exploration over
-            #This actually works if need > 1 because of how we are breaking up the run
             tensorboard_log = logdir)
 
 
 sub_timesteps = 850000*2
 for i in range(1,6): #10000 episodes worked out to ~8.5 mill steps
     model.learn(total_timesteps = sub_timesteps, reset_num_timesteps = False,
-                log_interval=10, tb_log_name='DQN')
+                log_interval=10, tb_log_name='PPO')
     
     model.save(f"{models_dir}/{sub_timesteps*i}")
