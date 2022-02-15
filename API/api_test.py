@@ -5,6 +5,14 @@ import os,sys
 from torchsummary import summary
 from agent import DDQNAgent
 
+use_cuda = torch.cuda.is_available()
+if use_cuda: 
+    print(f"Using CUDA: {use_cuda}")
+    print()
+else:
+    print("You neeed CUDA. Sorry!")
+    exit()
+
 class SkipFrame(gym.Wrapper):
     def __init__(self, env, skip):
         super().__init__(env)
@@ -80,4 +88,30 @@ if params.load_checkpoint is not None: #Start from checkpoint?
     agent.memory = pickle.load( open( memory_file, "rb" ) )
 #    agent.current_step = episode * env.Nvacs #Load number of steps
 
+#Training loop
+while episode<max_episodes:
+    state = env.reset()
+    cstep = 0 #Keep track of steps in this episode
+    while True:
+        action = agent.act(state)
+        if cstep==0: 
+            action = np.random.randint(agent.action_dim) 
+            #Take first action randomly so start from different places
+        cstep+=1
+        next_state, reward, done, info = env.step(action)
+        agent.remember(state, next_state, action, reward, done)
+        agent.experience_replay(reward)
+        state = next_state
+        if done:
+            cstep = 0
+            episode += 1
+            agent.log_episode()
+            if episode % params.log_period == 0: #Is it time to log results?
+                agent.log_period(episode=episode, epsilon=agent.exploration_rate, step=agent.current_step)
+                if episode % params.checkpoint_period == 0: #Is it time to save the model file and optionally memory?
+                    agent.save_checkpoint()
+                plt.imshow(state.__array__().squeeze().T, origin='lower')
+                plt.savefig(save_directory + "/img%d.png" %episode)
+                plt.close()
+            break
 

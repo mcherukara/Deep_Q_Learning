@@ -29,7 +29,7 @@ learning_rate = 1e-4
 seed = 1 #Random seed for reproduce
 
 #Which model
-model_type = "Double_DQN" #Duel_Double_DQN or Double_DQN
+model_type = "Duel_Double_DQN" #Duel_Double_DQN or Double_DQN
 
 #MD specific
 #Nvacs = 40 #How many vacancies in a step
