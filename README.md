@@ -3,7 +3,7 @@ Comparison of different Q learning methods
 
 ### Training curves
 
-Comparison of how the Dueling Double DQN and Double DQN agents learn
+Comparison of how the Dueling Double DQN and Double DQN agents learn. Results are averaged over 3 random starts. Dueling Double DQN doesn't reach the same performance of Double DQN within the alloted training time but appears to be more stable as it learns. 
 
 <p float="left">
   <img src="https://user-images.githubusercontent.com/13368869/153972971-73e18217-e3e7-4f32-8426-6f3b9075ddca.png" width="400" />
