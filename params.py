@@ -10,7 +10,7 @@ else:
 
 #Log rewards and network weights
 rewards_file = 'rewards2.txt'
-save_directory = "Double_DQN/v2"
+save_directory = "test/v2"
 save_memory = False #Save memory on checkpoint yes/no
 
 #DQNAgent params
