@@ -15,5 +15,7 @@ Comparison of how the Dueling Double DQN and Double DQN agents learn Breakout:
 
 ### Trained agent in action
 
+Trained agents learn to exploit the game by building a tunnel through the bricks to maximize points with minimal effort which is really cool!
+
 https://user-images.githubusercontent.com/13368869/153972784-df664cbf-36d3-476c-88fe-96513be0ddba.mp4
 
