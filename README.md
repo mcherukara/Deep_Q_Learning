@@ -6,8 +6,8 @@ Comparison of different Q learning methods
 Comparison of how the Dueling Double DQN and Double DQN agents learn
 
 <p float="left">
-  <img src="https://user-images.githubusercontent.com/13368869/153972971-73e18217-e3e7-4f32-8426-6f3b9075ddca.png" width="100" />
-  <img src="https://user-images.githubusercontent.com/13368869/153972971-73e18217-e3e7-4f32-8426-6f3b9075ddca.png" width="100" /> 
+  <img src="https://user-images.githubusercontent.com/13368869/153972971-73e18217-e3e7-4f32-8426-6f3b9075ddca.png" width="500" />
+  <img src="https://user-images.githubusercontent.com/13368869/153972971-73e18217-e3e7-4f32-8426-6f3b9075ddca.png" width="500" /> 
 </p>
 
 <img width="682" alt="train1" src="https://user-images.githubusercontent.com/13368869/153972971-73e18217-e3e7-4f32-8426-6f3b9075ddca.png">
