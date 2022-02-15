@@ -7,7 +7,7 @@ Comparison of how the Dueling Double DQN and Double DQN agents learn
 
 <p float="left">
   <img src="https://user-images.githubusercontent.com/13368869/153972971-73e18217-e3e7-4f32-8426-6f3b9075ddca.png" width="500" />
-  <img src="https://user-images.githubusercontent.com/13368869/153972971-73e18217-e3e7-4f32-8426-6f3b9075ddca.png" width="500" /> 
+  <img src="https://user-images.githubusercontent.com/13368869/153973031-6d6af889-d0f5-4af0-82c1-bff056d2e046.png" width="500" /> 
 </p>
 
 
