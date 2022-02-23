@@ -1,5 +1,6 @@
 from imports import *
 import params
+import pickle
 
 #Which model should agent use
 if params.model_type == "Duel_Double_DQN":
@@ -9,8 +10,8 @@ elif params.model_type == "Double_DQN":
 else:
     print ("ERROR!: Choose right model in params file", file=sys.stderr)
 
+
 #DQNAgent
-import pickle
 class DDQNAgent:
     def __init__(self, action_dim, obs_dim, save_directory, rewards_file):
         self.action_dim = action_dim
@@ -115,7 +116,7 @@ class DDQNAgent:
         self.exploration_rate = checkpoint['exploration_rate']
 
         
-    def save_checkpoint(self):
+    def save_checkpoint(self, episode):
         filename = os.path.join(self.save_directory, 'checkpoint_{}.pth'.format(episode))
         torch.save(dict(model=self.net.state_dict(), exploration_rate=self.exploration_rate), f=filename)
         print('Checkpoint saved to \'{}\''.format(filename))

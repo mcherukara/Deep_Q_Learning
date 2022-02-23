@@ -48,7 +48,7 @@ class ResizeObservation(gym.ObservationWrapper):
 
     def observation(self, observation):
         transformations = transforms.Compose([transforms.Resize(self.shape), transforms.Normalize(0, 255)])
-        return transformations(observation).squeeze(0)
+        return transformations(observation).squeeze(0).numpy()
 
 
 env = gym.make('BreakoutNoFrameskip-v4')
@@ -66,6 +66,8 @@ torch.random.manual_seed(params.seed)
 random.seed(params.seed)
 np.random.seed(params.seed)
 
+print ("Observation shape is", env.observation_space.shape)
+
 #Load checkpoint
 episode = params.episode
 max_episodes = params.max_episodes
@@ -82,11 +84,18 @@ if not os.path.exists (os.getcwd() + '/' + save_directory):
 agent = DDQNAgent(action_dim=env.action_space.n, obs_dim = env.observation_space.shape,
                   save_directory=save_directory, rewards_file=rewards_file)
 
+
+#Summarize model
+model = agent.net
+print(summary(model,env.observation_space.shape)) 
+
+
 if params.load_checkpoint is not None: #Start from checkpoint?
     agent.load_checkpoint(save_directory + "/" + params.load_checkpoint) #Load weights
     memory_file = save_directory + "/memory_%d.pkl" %episode #Load experience replay deque
     agent.memory = pickle.load( open( memory_file, "rb" ) )
 #    agent.current_step = episode * env.Nvacs #Load number of steps
+
 
 #Training loop
 while episode<max_episodes:
@@ -109,7 +118,7 @@ while episode<max_episodes:
             if episode % params.log_period == 0: #Is it time to log results?
                 agent.log_period(episode=episode, epsilon=agent.exploration_rate, step=agent.current_step)
                 if episode % params.checkpoint_period == 0: #Is it time to save the model file and optionally memory?
-                    agent.save_checkpoint()
+                    agent.save_checkpoint(episode)
                 plt.imshow(state.__array__().squeeze().T, origin='lower')
                 plt.savefig(save_directory + "/img%d.png" %episode)
                 plt.close()
